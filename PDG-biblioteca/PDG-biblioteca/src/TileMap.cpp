@@ -6,6 +6,8 @@ TileMap::TileMap(Renderer* renderer, int rows, int columns, const char* path, in
 	correctlySet = false;
 	_imageHeight = imageHeight;
 	_imageWidth = imageWidth;
+	tilemapRows = rows;
+	tilemapColumns = columns;
 	int tileProportionalWidth = _imageWidth/ columns;
 	int tileProportionalHeight = _imageHeight / rows; 
 	textureUsed = new Texture(path);
@@ -72,15 +74,21 @@ void TileMap::setTileMap(int column, int row, vector<int> tilesId)
 	{
 		for (int j = 0; j < column; j++)
 		{
-			tilesLayout[i*column + j]->setPosition
-			(vec3(j*tilesLayout[i*column + j]->width,i*-tilesLayout[i*column + j]->height,0) 
-				- vec3
-				(column / 2.0f * tilesLayout[i*column + j]->width,
-				(row / 2.0f * tilesLayout[i*column + j]->height) - tilesLayout[i*column + j]->height/2,0));
+			tilesLayout[i*column + j]->setPosition(getPosition() + vec3(j*tilesLayout[i*column + j]->width + tilesLayout[i*column + j]->width / 2, i* -tilesLayout[i*column + j]->height - tilesLayout[i*column + j]->height / 2, 0) - vec3(column / 2.0f * tilesLayout[i*column + j]->width, -(row / 2.0f * tilesLayout[i*column + j]->height), 0));
 		}
 	}
 	tilemapWidth = (tilesLayout[tilesLayout.size()-1]->getPosition().x + tilesLayout[tilesLayout.size() - 1]->width/2.0f) - (tilesLayout[0]->getPosition().x - tilesLayout[0]->width/2.0f);
 	tilemapHeight = (tilesLayout[0]->getPosition().y + tilesLayout[0]->height / 2.0f) - (tilesLayout[tilesLayout.size() - 1]->getPosition().y - tilesLayout[tilesLayout.size() - 1]->height / 2.0f);
+}
+
+void TileMap::setTileMap(int column, int row, vector<vec2> tilesCoor)
+{
+	vector<int> tilesId;
+	for (int i = 0; i < tilesCoor.size(); i++)
+	{
+		tilesId.push_back(tilesCoor[i].y * tilemapRows + tilesCoor[i].x);
+	}
+	setTileMap(column, row, tilesId);
 }
 
 void TileMap::setTileMap(int column, int row, vector<int> tilesId, vector<bool> tilesWalkable)
@@ -113,12 +121,22 @@ void TileMap::setTileMap(int column, int row, vector<int> tilesId, vector<bool> 
 	{
 		for (int j = 0; j < column; j++)
 		{
-			tilesLayout[i*column + j]->setPosition(vec3(j*tilesLayout[i*column + j]->width, i*-tilesLayout[i*column + j]->height, 0) - vec3(column / 2.0f * tilesLayout[i*column + j]->width, (row / 2.0f * tilesLayout[i*column + j]->height) - tilesLayout[i*column + j]->height / 2, 0));
+			tilesLayout[i*column + j]->setPosition(getPosition() + vec3(j*tilesLayout[i*column + j]->width + tilesLayout[i*column + j]->width / 2, i* -tilesLayout[i*column + j]->height - tilesLayout[i*column + j]->height / 2, 0) - vec3(column / 2.0f * tilesLayout[i*column + j]->width, -(row / 2.0f * tilesLayout[i*column + j]->height), 0));
 			tilesLayout[i*column + j]->setWalkable(tilesWalkable[i*column + j]);
 		}
 	}
 	tilemapWidth = (tilesLayout[tilesLayout.size() - 1]->getPosition().x + tilesLayout[tilesLayout.size() - 1]->width / 2.0f) - (tilesLayout[0]->getPosition().x - tilesLayout[0]->width / 2.0f);
 	tilemapHeight = (tilesLayout[0]->getPosition().y + tilesLayout[0]->height / 2.0f) - (tilesLayout[tilesLayout.size() - 1]->getPosition().y - tilesLayout[tilesLayout.size() - 1]->height / 2.0f);
+}
+
+void TileMap::setTileMap(int column, int row, vector<vec2> tilesCoor, vector<bool> tilesWalkable)
+{
+	vector<int> tilesId;
+	for (int i = 0; i < tilesCoor.size(); i++)
+	{
+		tilesId.push_back(tilesCoor[i].y * tilemapRows + tilesCoor[i].x);
+	}
+	setTileMap(column, row, tilesId, tilesWalkable);
 }
 
 TileMap::~TileMap()
@@ -144,9 +162,9 @@ void TileMap::drawTileMap()
 
 bool TileMap::checkCollisionWithTileMap(Shape* shape, vec3 movement)
 {
-	//if (!collidesWithTileMap(shape))
-	//	return false;
-	
+	if (!collidesWithTileMap(shape))
+		return false;
+
 	bool collides = false;
 
 	for (int i = 0; i < tilesLayout.size(); i++)
@@ -169,10 +187,7 @@ bool TileMap::collidesWithTileMap(Shape* shape)
 	if (shape->getPosition().x + shape->width / 2.0f <	getPosition().x - tilemapWidth / 2.0f ||
 		shape->getPosition().x - shape->width / 2.0f > getPosition().x  + tilemapWidth / 2.0f ||
 		shape->getPosition().y + shape->height / 2.0f < getPosition().y - tilemapHeight / 2.0f ||
-		shape->getPosition().y - shape->height / 2.0f > getPosition().y + tilemapHeight)
-	{
-		cout << "no colisiona" << endl;
+		shape->getPosition().y - shape->height / 2.0f > getPosition().y + tilemapHeight / 2.0f)
 		return false;
-	}
 	else return true;
 }

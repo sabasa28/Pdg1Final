@@ -377,21 +377,21 @@ void Renderer::setPosAttrib()
 {
 	_posAttrib = glGetAttribLocation(_shaderProgram, "position");
 	glVertexAttribPointer(_posAttrib, posElementsAmount, GL_FLOAT, GL_FALSE, attribElementsAmount * sizeof(float), 0);
-	glEnableVertexAttribArray(_posAttrib); //cambie esto de 0 a _posAttrib
+	glEnableVertexAttribArray(_posAttrib);
 }
 
 void Renderer::setTextureAttrib()
 {
 	_textureAttrib = glGetAttribLocation(_shaderProgram, "texCoor");
 	glVertexAttribPointer(_textureAttrib, texElementsAmount, GL_FLOAT, GL_FALSE, attribElementsAmount * sizeof(float), (void*) (3 * sizeof(float)));
-	glEnableVertexAttribArray(_textureAttrib);//cambie esto de 1 a _textureAttrib
+	glEnableVertexAttribArray(_textureAttrib);
 }
 
 void Renderer::setNormalAttrib()
 {
 	_normalAttrib = glGetAttribLocation(_shaderProgram, "normal");
 	glVertexAttribPointer(_normalAttrib, normalElementsAmount, GL_FLOAT, GL_FALSE, attribElementsAmount * sizeof(float), (void*)(5 * sizeof(float)));
-	glEnableVertexAttribArray(_normalAttrib);//cambie esto de 1 a _textureAttrib
+	glEnableVertexAttribArray(_normalAttrib);
 }
 
 void Renderer::deleteShaderProgram() {

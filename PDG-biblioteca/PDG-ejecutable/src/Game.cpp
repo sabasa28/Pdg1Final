@@ -22,7 +22,7 @@ void Game::initGame(Renderer* renderer)
 	timer->start();
 
 	_camera = new Camera(renderer);
-	_camera->setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+	_camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
 	
 	_lightA = new Lightning(renderer);
 	_lightA->initializeDirectional(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.1f), glm::vec3(0.5f), glm::vec3(0.5f));
@@ -46,16 +46,26 @@ void Game::initGame(Renderer* renderer)
 		fuego[i] = new Sprite(renderer, "res/fuegoDibujo.png", true);
 	}
 	
-	tileMap = new TileMap(renderer, 16, 16, "res/MasterSimple.png", 256, 256, 4.0f, 4.0f);
+	tileMap = new TileMap(renderer, 16, 16, "res/MasterSimple.png", 256, 256, 10.0f, 10.0f);
+	vector<int> tilemapLayout =		{ 0,  1,  1, 1,  2,
+									 16, 17, 17, 72, 18,
+									 16, 17, 17, 17, 18,
+									 16, 72, 17, 17, 18,
+									 64, 65, 65, 65, 66};
 
-	vector<int> tilemapLayout = { 0,1,1,1,2,16,17,17,8 + 16 * 4,18,16,17,17,17,18,16,17,17,17,18,64,65,65,65,66,66 ,66 ,66 ,66 ,66 };
+	vector<vec2> tilemapLayout2 = { vec2(0,0) ,vec2(1,0) ,vec2(1,0) ,vec2(1,0) ,vec2(2,0)
+								   ,vec2(0,1) ,vec2(1,1) ,vec2(1,1) ,vec2(9,1) ,vec2(2,1)
+								   ,vec2(0,1) ,vec2(1,1) ,vec2(1,1) ,vec2(1,1) ,vec2(2,1)
+								   ,vec2(0,1) ,vec2(10,1) ,vec2(1,1) ,vec2(1,1) ,vec2(2,1)
+								   ,vec2(0,3) ,vec2(1,3) ,vec2(1,3) ,vec2(1,3) ,vec2(2,3) };
 
-	vector<bool> tilemapWalkable = { true,true, true, true, true,
-									true, true, true, false, true, 
-									true,true, true, true, true, 
-									true, true, true, true, true,
-									true,true, true, true, true};
-	tileMap->setTileMap(5,5,tilemapLayout,tilemapWalkable);
+	vector<bool> tilemapWalkable = {true,	true,	true,	true,	true,
+									true,	true,	true,	false,	true, 
+									true,	true,	true,	true,	true, 
+									true,	false,	true,	true,	true,
+									true,	true,	true,	true,	true};
+
+	tileMap->setTileMap(5,5, tilemapLayout2,tilemapWalkable);
 	
 	
 	animation2 = new Animation();
@@ -81,6 +91,7 @@ void Game::initGame(Renderer* renderer)
 
 void Game::updateGame(CollisionManager collManager, Input* input)
 {
+	timer->updateTimer();
 	//input
 	if (input->isKeyDown(GLFW_KEY_UP))
 	{
@@ -233,7 +244,7 @@ void Game::updateGame(CollisionManager collManager, Input* input)
 	{
 		camTargetX = 0;
 	}
-	if (input->isKeyDown(GLFW_KEY_R)) //esta parte se puede remover
+	if (input->isKeyDown(GLFW_KEY_R))
 	{
 		camTargetZ = 1;
 	}
@@ -267,39 +278,33 @@ void Game::updateGame(CollisionManager collManager, Input* input)
 	vec3 newRot = shapeA->getRotation() + vec3(rotXSpeed, rotYSpeed, rotZSpeed)*timer->getDT();
 	shapeA->setRotation(newRot);
 	
-	if (collManager.CheckCollision(sprite1, sprite2)) fireActive = false;
 	if (collManager.CheckCollision(shapeA, sprite3)) cout << "YOU WIN" << endl;
+	
+
+
+	shapeA->draw();
+
+	//tileMap->checkCollisionWithTileMap(shapeA, playerMovement);
+	//tileMap->drawTileMap();
+
+
 	
 	for (int i = 0; i < 4; i++)
 	{
 		if (fuego[i] && fireActive)
 		{
 			collManager.CheckCollisionAgainstStatic(shapeA, fuego[i], playerMovement);
-		}
-	}
-	collManager.CheckCollisionAndPush(shapeA, sprite1, playerMovement);
-	//
-	tileMap->checkCollisionWithTileMap(shapeA, playerMovement);
-
-	timer->updateTimer();
-
-	//draw
-	shapeA->draw();
-	tileMap->drawTileMap();
-
-
-
-	sprite1->draw();
-	sprite2->draw();
-	sprite3->draw();
-	for (int i = 0; i < 4; i++)
-	{
-		if (fuego[i] && fireActive)
-		{
 			fuego[i]->updateSprite(*timer);
 			fuego[i]->draw();
 		}
 	}
+	if (collManager.CheckCollision(sprite1, sprite2)) fireActive = false;
+	collManager.CheckCollisionAndPush(shapeA, sprite1, playerMovement);
+	sprite1->draw();
+	sprite2->draw();
+	
+
+	sprite3->draw();
 }
 void Game::destroyGame()
 {

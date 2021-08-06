@@ -5,6 +5,7 @@ Animation::Animation()
 	currentTime = 0;
 	currentFrame = 0;
 	timeLength = 200;
+	lastUpdateTime = 0.0f;
 }
 
 Animation::~Animation()
@@ -69,6 +70,9 @@ void Animation::addAnimation(float timeToAnimate)
 
 void Animation::update(Timer& timer)
 {
+	if (timer.getTime()==lastUpdateTime)
+		return;
+	lastUpdateTime = timer.getTime();
 	currentTime += (timer.getDT());
 
 	while (currentTime >= timeLength)

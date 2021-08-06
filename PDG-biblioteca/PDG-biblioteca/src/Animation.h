@@ -15,6 +15,7 @@ private:
 	vector<Frame> frames;
 	vector<vector<Frame>> animations;
 	int animNum = 0;
+	float lastUpdateTime;
 public:
 	Animation();
 	~Animation();

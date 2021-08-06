@@ -27,6 +27,7 @@ class SABASAENGINE_API CollisionManager
 	Collider b;
 	CollisionResult result;
 	bool isColliding();
+	CollisionResult getAccurateCollisionResult();
 public:
 	bool CheckCollision(Shape* shapeA, Shape* ShapeB);
 	bool CheckCollision(Shape* shape, Sprite* sprite);

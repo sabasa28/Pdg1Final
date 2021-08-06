@@ -41,6 +41,25 @@ bool CollisionManager::isColliding()
 	return (collisionX && collisionY);
 }
 
+CollisionResult CollisionManager::getAccurateCollisionResult()
+{
+	vec3 distanceVec = abs(a.pos - b.pos);
+	float farthest = distanceVec.x;
+	if (distanceVec.x < distanceVec.y)
+		farthest = distanceVec.y;
+	if (farthest == distanceVec.x)
+	{
+		result.top = false;
+		result.bottom = false;
+	}
+	else
+	{
+		result.right = false;
+		result.left = false;
+	}
+	return result;
+}
+
 bool CollisionManager::CheckCollision(Shape* shapeA, Shape* ShapeB)
 {
 	a.width = shapeA->width;
@@ -115,8 +134,16 @@ bool CollisionManager::CheckCollisionAndPush(Shape* shape, Sprite* sprite, vec3 
 
 	if (isColliding())
 	{
-		shape->setPosition(shape->getPosition() - movement / 2.0f);
-		sprite->setPosition(sprite->getPosition() + movement / 2.0f);
+		getAccurateCollisionResult();
+		if (result.left || result.right)
+		{
+			shape->setPosition(shape->getPosition() - vec3(movement.x / 2.0f, 0.0f, 0.0f));
+			sprite->setPosition(sprite->getPosition() + vec3(movement.x / 2.0f, 0.0f, 0.0f));
+		}
+		else
+			shape->setPosition(shape->getPosition() - vec3(0.0f, movement.y / 2.0f, 0.0f));
+			sprite->setPosition(sprite->getPosition() + vec3(0.0f, movement.y / 2.0f, 0.0f));
+		
 		return true;
 	}
 }
